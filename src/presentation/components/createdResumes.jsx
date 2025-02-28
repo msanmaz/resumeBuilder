@@ -11,7 +11,7 @@ const CreatedResumes = () => {
     const [previewResume, setPreviewResume] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { state,dispatch, actions } = useResume();
+    const { state, dispatch, actions } = useResume();
     const navigate = useNavigate();
 
     const hasExistingData = Object.keys(state.resume.personal || {}).length > 0;
@@ -88,7 +88,8 @@ const CreatedResumes = () => {
         if (confirm('Are you sure you want to delete this resume?')) {
             const result = resumeStorage.deleteResume(id);
             if (result.success) {
-                await loadResumes();
+                setResumes([]);
+                dispatch(actions.resetState());
             } else {
                 console.error('Failed to delete resume:', result.error);
             }

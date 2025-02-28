@@ -1,4 +1,4 @@
-import { ACTIONS, defaultNavigationItems, TEMPLATES } from './resumeConstants';
+import { ACTIONS, defaultNavigationItems, initialState, TEMPLATES } from './resumeConstants';
 import isEqual from 'lodash/isEqual';
 
 export function resumeReducer(state, action) {
@@ -81,6 +81,9 @@ export function resumeReducer(state, action) {
         }
         return resumeReducer(currentState, update);
       }, state);
+    }
+    case ACTIONS.RESET_STATE: {
+      return initialState; // This will reset to the initial state defined in resumeConstants.js
     }
     default:
       return state;

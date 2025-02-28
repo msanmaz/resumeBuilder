@@ -40,5 +40,8 @@ export const actions = {
   setSectionOrder: (order) => ({
     type: ACTIONS.SET_SECTION_ORDER,
     payload: order
+  }),
+  resetState: () => ({
+    type: ACTIONS.RESET_STATE
   })
 };

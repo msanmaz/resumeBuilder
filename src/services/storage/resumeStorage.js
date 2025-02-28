@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { generateThumbnail } from '../../utils/pdfThumbnail';
 
 const STORAGE_KEY = 'resumes'; // Single storage key
 
@@ -11,6 +12,52 @@ export const resumeStorage = {
     } catch (error) {
       console.error('Error getting resumes:', error);
       return {};
+    }
+  },
+
+  saveResumeWithThumbnail: async (resumeData, template, id = uuidv4()) => {
+    try {
+      // Input validation
+      if (!resumeData || !template) {
+        throw new Error('Missing required resume data or template');
+      }
+
+      console.log('Generating thumbnail as part of save operation...');
+      
+      // Generate thumbnail using the new reliable method
+      const thumbnail = await generateThumbnail(
+        { resume: resumeData },
+        template
+      );
+
+      // Get existing resumes
+      const resumes = resumeStorage.getAllResumes();
+      const timestamp = new Date().toISOString();
+
+      // Create/update resume entry
+      resumes[id] = {
+        id,
+        data: resumeData,
+        template,
+        thumbnail,
+        createdAt: resumes[id]?.createdAt || timestamp,
+        lastModified: timestamp,
+      };
+
+      // Save to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(resumes));
+      
+      return {
+        success: true,
+        id,
+        thumbnail
+      };
+    } catch (error) {
+      console.error('Error saving resume with thumbnail:', error);
+      return {
+        success: false,
+        error: error.message
+      };
     }
   },
 
@@ -61,7 +108,7 @@ export const resumeStorage = {
 
       const resumes = resumeStorage.getAllResumes();
       delete resumes[id];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(resumes));
+      localStorage.removeItem(STORAGE_KEY, JSON.stringify(resumes));
 
       return {
         success: true

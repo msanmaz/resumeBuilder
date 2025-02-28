@@ -9,22 +9,50 @@ const cleanEnhancedContent = (content) => {
   return content;
 };
 
+// Debug API key loading
+const API_KEY = import.meta.env.VITE_API_KEY || 'your-default-api-key-for-development';
+console.log('API Key loaded:', API_KEY ? `${API_KEY.substring(0, 4)}...` : 'missing');
+console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1/');
+
+// Create a custom fetchBaseQuery with logging
+const customFetchBaseQuery = fetchBaseQuery({
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1/',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': API_KEY
+  },
+  prepareHeaders: (headers, { getState }) => {
+    // Log all headers to debug
+    console.log('Request headers:', Object.fromEntries(headers.entries()));
+    return headers;
+  }
+});
+
 export const resumeApi = createApi({
   reducerPath: 'resumeApi',
-  baseQuery: fetchBaseQuery({ 
-    baseUrl: 'http://localhost:3000/api/v1/',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  }),
+  baseQuery: customFetchBaseQuery,
   endpoints: (builder) => ({
     enhanceContent: builder.mutation({
-      query: (data) => ({
-        url: 'llm/generate',
-        method: 'POST',
-        body: data,
-      }),
+      query: (data) => {
+        console.log('enhanceContent request data:', data);
+        return {
+          url: 'llm/generate',
+          method: 'POST',
+          body: data,
+        };
+      },
+      // Add more detailed error logging
+      async onQueryStarted(args, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          console.log('enhanceContent request successful');
+        } catch (error) {
+          console.error('enhanceContent request failed:', error);
+          console.error('Error details:', error.error);
+        }
+      },
       transformResponse: (response) => {
+        console.log('Raw response:', response);
         if (response.status === 'success') {
           const { data } = response;
           
@@ -40,6 +68,7 @@ export const resumeApi = createApi({
         throw new Error('Failed to enhance content');
       },
       transformErrorResponse: (response) => {
+        console.error('Transform error response:', response);
         return response || 'An error occurred';
       }
     }),
@@ -47,6 +76,4 @@ export const resumeApi = createApi({
   tagTypes: ['Resume'],
 });
 
-export const {
-  useEnhanceContentMutation
-} = resumeApi;
+export const { useEnhanceContentMutation } = resumeApi;
