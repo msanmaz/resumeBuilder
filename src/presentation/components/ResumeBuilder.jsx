@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useResume } from '../context/resumeContext/useResume';
 import isEqual from 'lodash/isEqual';
 import LeftSidebar from './LeftSideBar.jsx';
-import FormSection from './FormSection';
+import FormSection from './formSection/index';
 import PDFDocument from '../../domain/pdf/PDFDocument';
 import { PDFViewer } from '@react-pdf/renderer';
 import PDFTemplate2 from '../../domain/pdf/PDFDocument2';
