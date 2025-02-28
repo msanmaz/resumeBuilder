@@ -1,4 +1,4 @@
-import PersonalForm from './PersonalForm';
+import PersonalForm from './personalForm';
 import ProfessionalSummaryForm from './professionalSummary';
 import EducationForm from './EducationForm';
 import WorkForm from './WorkForm';
