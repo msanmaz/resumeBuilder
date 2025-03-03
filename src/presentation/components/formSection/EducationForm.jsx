@@ -187,7 +187,6 @@ const EducationEntry = ({ entry, onSave, onDelete, index }) => {
 
 const EducationForm = ({ onNext }) => {
   const { state, dispatch } = useResume();
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const addEntry = () => {
     const newEntry = {
@@ -200,7 +199,6 @@ const EducationForm = ({ onNext }) => {
     };
 
     dispatch(actions.updateForm('education', [...(state.resume.education || []), newEntry]));
-    setHasUnsavedChanges(true);
   };
 
 
@@ -209,25 +207,17 @@ const EducationForm = ({ onNext }) => {
     newEducation[index] = updatedEntry;
 
     dispatch(actions.updateForm('education', newEducation));
-    setHasUnsavedChanges(false);
   };
 
   const removeEntry = (index) => {
     dispatch(actions.updateForm('education',
       state.resume.education.filter((_, idx) => idx !== index)
     ));
-    setHasUnsavedChanges(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (hasUnsavedChanges) {
-      if (confirm('You have unsaved changes. Do you want to continue?')) {
-        onNext('work');
-      }
-    } else {
       onNext('work');
-    }
   };
 
   return (

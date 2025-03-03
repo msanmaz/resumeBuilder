@@ -25,10 +25,9 @@ const PersonalForm = ({ onNext }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isDirty) {
       handleSave();
-    }
-    onNext('education');
+
+    onNext('summary');
   };
 
   return (
@@ -101,10 +100,11 @@ const PersonalForm = ({ onNext }) => {
 
       <div className="pt-6 border-t border-gray-700">
         <button
+          onClick={ () => onNext("summary")}
           type="submit"
           className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
         >
-          <span>Next Step: Education</span>
+          <span>Next Step: Summary</span>
           <ChevronRight size={18} />
         </button>
       </div>

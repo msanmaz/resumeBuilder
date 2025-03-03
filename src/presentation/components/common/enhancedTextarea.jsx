@@ -2,9 +2,12 @@
 // src/components/common/EnhancedTextarea.jsx
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Check, Loader2, Sparkles, AlertTriangle } from "lucide-react";
+import { RefreshCw, Check, Loader2, Sparkles, AlertTriangle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useContentEnhancement } from "../../hooks/useContentEnhancement";
+import { ButtonLoader } from "./loading";
+import { Progress } from "@/components/ui/progress";
+import { useState, useEffect } from "react";
 
 const EnhancedTextarea = ({
   value,
@@ -26,11 +29,41 @@ const EnhancedTextarea = ({
     enhance,
     setEnhancedText,
     setIsEnhanced,
-    setError
+    setError,
+    // New properties from the updated hook
+    jobStatus,
+    currentJobId
   } = useContentEnhancement(section, contextBuilder);
 
+  // For simulating progress during async processing
+  const [progressValue, setProgressValue] = useState(0);
+
+  // Update progress animation during loading
+  useEffect(() => {
+    let interval;
+    if (isLoading) {
+      // Reset progress when starting
+      setProgressValue(0);
+      
+      // Animate progress to show activity
+      interval = setInterval(() => {
+        setProgressValue(prev => {
+          // Cap at 90% so it doesn't look complete until it actually is
+          return prev < 90 ? prev + (90 - prev) / 10 : prev;
+        });
+      }, 500);
+    } else {
+      // Complete the progress when done
+      setProgressValue(100);
+    }
+    
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
   const handleGenerate = async () => {
-    await enhance(value, contextData);
+    console.log('VALUE RIGHT AFTER PRESSING RETRY HANDLE GENERATE', value)
+    let enhancedTextValue = enhancedText.length > 0 ? enhancedText : value
+    await enhance(enhancedTextValue, contextData);
   };
 
   const handleAccept = () => {
@@ -43,6 +76,13 @@ const EnhancedTextarea = ({
 
   const handleRetry = () => {
     handleGenerate();
+  };
+
+  // Get a user-friendly status message
+  const getStatusMessage = () => {
+    if (!isLoading) return "";
+    if (!currentJobId) return "Submitting enhancement request...";
+    return "AI is enhancing your content...";
   };
 
   return (
@@ -64,6 +104,7 @@ const EnhancedTextarea = ({
                 error && "border-red-500 focus:border-red-500",
                 className
               )}
+              disabled={isLoading}
             />
             <Button
               onClick={handleGenerate}
@@ -71,13 +112,29 @@ const EnhancedTextarea = ({
               className="absolute right-2 top-2 bg-primary-500/20 hover:bg-primary-500/40 text-primary-400 gap-2"
             >
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <ButtonLoader />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              Generate
+              {isLoading ? "Processing..." : "Generate"}
             </Button>
           </div>
+
+          {/* Loading state with progress indication */}
+          {isLoading && (
+            <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-3 text-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="h-4 w-4 text-blue-400 animate-pulse" />
+                <span className="font-medium text-blue-400">{getStatusMessage()}</span>
+              </div>
+              <Progress value={progressValue} className="h-1 bg-blue-950" indicatorClassName="bg-blue-500" />
+              <p className="text-xs mt-2 text-blue-300/80">
+                This might take a moment as we craft the perfect wording for your resume.
+              </p>
+            </div>
+          )}
+
+          {/* Error state */}
           {error && (
             <div className="text-sm text-red-400 px-1 flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />

@@ -11,6 +11,7 @@ import { ACTIONS, TEMPLATES } from '../context/resumeContext/resumeConstants';
 import { generateThumbnail } from '../../utils/pdfThumbnail';
 import { resumeStorage } from '../../services/storage/resumeStorage';
 import { v4 as uuidv4 } from 'uuid';
+import { PageLoader } from './common/loading.jsx';
 
 // Debug utilities
 const debugState = (label, state) => {
@@ -67,6 +68,7 @@ const ResumeBuilder = () => {
   const initialLoadRef = useRef(false);
   const saveTimeoutRef = useRef(null);
   const lastSavedContentRef = useRef(null);
+  
 
   // Initial load effect in ResumeBuilder.jsx
   useEffect(() => {
@@ -238,7 +240,8 @@ const ResumeBuilder = () => {
     />
   ), [pdfState, state.ui.selectedTemplate]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <PageLoader text="Loading your resume..." />;
+
 
   console.log('[Debug] ResumeBuilder rendering');
   debugState('Current State', state);

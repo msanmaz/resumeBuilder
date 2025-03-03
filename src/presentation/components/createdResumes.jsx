@@ -5,6 +5,7 @@ import { Plus, Trash2, Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { resumeStorage } from '../../services/storage/resumeStorage'; // Or utils/resumeUtils
 import PreviewModal from './templateSelection/previewmodal';
 import { generateThumbnail } from '../../utils/pdfThumbnail';
+import { PageLoader } from './common/loading';
 
 const CreatedResumes = () => {
     const [resumes, setResumes] = useState([]);
@@ -112,12 +113,8 @@ const CreatedResumes = () => {
 
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
-                <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
-            </div>
-        );
-    }
+        return <PageLoader text="Loading your resumes..." />;
+      }
 
     if (error) {
         return (

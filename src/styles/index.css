@@ -134,3 +134,14 @@ body {
 .resume-grid {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Ensure cards are at least 300px wide for larger thumbnails */
 }
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+ }
+  body {
+    @apply bg-background text-foreground;
+ }
+}

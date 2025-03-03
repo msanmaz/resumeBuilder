@@ -1,4 +1,3 @@
-// src/services/api/resumeApi.js
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 // Helper function to safely clean enhanced content
@@ -32,9 +31,10 @@ export const resumeApi = createApi({
   reducerPath: 'resumeApi',
   baseQuery: customFetchBaseQuery,
   endpoints: (builder) => ({
-    enhanceContent: builder.mutation({
+    // Submit a job to enhance content
+    submitEnhancementJob: builder.mutation({
       query: (data) => {
-        console.log('enhanceContent request data:', data);
+        console.log('submitEnhancementJob request data:', data);
         return {
           url: 'llm/generate',
           method: 'POST',
@@ -45,35 +45,61 @@ export const resumeApi = createApi({
       async onQueryStarted(args, { queryFulfilled }) {
         try {
           await queryFulfilled;
-          console.log('enhanceContent request successful');
+          console.log('submitEnhancementJob request successful');
         } catch (error) {
-          console.error('enhanceContent request failed:', error);
+          console.error('submitEnhancementJob request failed:', error);
           console.error('Error details:', error.error);
         }
       },
       transformResponse: (response) => {
-        console.log('Raw response:', response);
+        console.log('Raw job submission response:', response);
         if (response.status === 'success') {
-          const { data } = response;
-          
-          // Safely clean enhanced content if it exists
-          if (data.enhanced) {
-            return {
-              ...data,
-              enhanced: cleanEnhancedContent(data.enhanced.enhanced)
-            };
-          }
-          return data;
+          return {
+            jobId: response.data.jobId,
+            status: response.data.status,
+            checkStatusUrl: response.data.checkStatusUrl
+          };
         }
-        throw new Error('Failed to enhance content');
+        throw new Error('Failed to submit enhancement job');
       },
       transformErrorResponse: (response) => {
         console.error('Transform error response:', response);
         return response || 'An error occurred';
       }
     }),
+    
+    // Check job status
+    checkJobStatus: builder.query({
+      query: (jobId) => {
+        console.log('Checking job status for:', jobId);
+        return {
+          url: `llm/status/${jobId}`,
+          method: 'GET',
+        };
+      },
+      transformResponse: (response) => {
+        console.log('Job status response:', response);
+        if (response.status === 'success') {
+          return {
+            jobId: response.data.jobId,
+            status: response.data.status,
+            result: cleanEnhancedContent(response.data.result),
+            error: response.data.error
+          };
+        }
+        throw new Error('Failed to check job status');
+      },
+      transformErrorResponse: (response) => {
+        console.error('Job status check error:', response);
+        return response || 'An error occurred while checking job status';
+      }
+    }),
   }),
   tagTypes: ['Resume'],
 });
 
-export const { useEnhanceContentMutation } = resumeApi;
+export const { 
+  useSubmitEnhancementJobMutation,
+  useCheckJobStatusQuery,
+  useLazyCheckJobStatusQuery
+} = resumeApi;

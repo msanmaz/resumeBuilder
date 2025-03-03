@@ -10,7 +10,7 @@ const FormSection = () => {
   const { state, dispatch } = useResume();
 
   const handleNext = (nextSection) => {
-    dispatch({ type: actions.SET_SECTION, payload: nextSection });
+    dispatch(actions.setSection(nextSection));
   };
 
   const renderForm = () => {
